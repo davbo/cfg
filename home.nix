@@ -3,10 +3,20 @@
 {
   home.packages = [
     pkgs.htop
+    pkgs.jetbrains.idea-community
   ];
 
   programs.alacritty = {
     enable = true;
+  };
+
+  programs.bash = {
+    enable = true;
+    sessionVariables = {
+      GOPATH = "$HOME/go";
+      PATH = "$PATH:$GOPATH/bin";
+      _JAVA_AWT_WM_NONREPARENTING = 1;
+    };
   };
 
   programs.emacs = {
