@@ -31,6 +31,8 @@
   };
   home.file.".spacemacs".source = ./spacemacs.el;
 
+  home.file.".Xdefaults".source = ./Xdefaults;
+
   programs.git = {
     enable = true;
     userName = "Dave King";
