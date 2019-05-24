@@ -55,6 +55,7 @@ This function should only modify configuration layer settings."
      treemacs
      themes-megapack
 
+     osx
      nixos
      python
      javascript
@@ -446,6 +447,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  (setq-default evil-escape-key-sequence "jk")
   )
 
 (defun dotspacemacs/user-load ()

@@ -1,27 +1,63 @@
 { pkgs, ... }:
 
 {
-  home.packages = [
-    pkgs.htop
-    pkgs.jetbrains.idea-community
+  home.packages = with pkgs; [
+    bash
+    zsh
+
+    coreutils
+    findutils
+
+    gnugrep
+    gnused
+
+    # Fonts
+    fira-code
+    fira-code-symbols
+    source-code-pro
   ];
 
-  programs.alacritty = {
-    enable = true;
-  };
-
-  programs.bash = {
+  programs.zsh = {
     enable = true;
     sessionVariables = {
+      NIX_PATH = "$HOME/.nix-defexpr/channels\${NIX_PATH:+:}$NIX_PATH";
       GOPATH = "$HOME/go";
-      PATH = "$PATH:$GOPATH/bin";
+      PATH = "$PATH:$HOME/.nix-profile/bin:$GOPATH/bin";
       _JAVA_AWT_WM_NONREPARENTING = 1;
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=10";
     };
+    initExtra = ''
+      autoload -Uz promptinit 
+      promptinit
+      . $HOME/.zsh/plugins/pure/pure.zsh
+      . $HOME/.nix-profile/etc/profile.d/nix.sh
+    '';
+    plugins = [
+      {
+        # will source zsh-autosuggestions.plugin.zsh
+        name = "zsh-autosuggestions";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-autosuggestions";
+          rev = "v0.5.2";
+          sha256 = "1xhrdv6cgmq9qslb476rcs8ifw8i2vf43yvmmscjcmpz0jac4sbx";
+        };
+      }
+      {
+        name = "pure";
+        file = "async.zsh";
+        src = pkgs.fetchFromGitHub {
+          owner = "sindresorhus";
+          repo = "pure";
+          rev = "v1.9.0";
+          sha256 = "0qimbksjn7w35wqfm40sjhwkx843m1szqmwlmw3xxf69yx1hyz6w";
+        };
+      }
+    ];
   };
 
-  programs.emacs = {
-    enable = true;
-  };
+  programs.ssh.enable = true;
+  programs.emacs.enable = true;
   home.file.".emacs.d" = {
     source = builtins.fetchGit {
       url = "https://github.com/syl20bnr/spacemacs";
