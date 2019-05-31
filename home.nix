@@ -24,13 +24,15 @@
       GOPATH = "$HOME/go";
       PATH = "$PATH:$HOME/.nix-profile/bin:$GOPATH/bin";
       _JAVA_AWT_WM_NONREPARENTING = 1;
-      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=10";
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE = "fg=8";
+      PURE_PROMPT_SYMBOL="$";
     };
     initExtra = ''
       autoload -Uz promptinit 
       promptinit
       . $HOME/.zsh/plugins/pure/pure.zsh
       . $HOME/.nix-profile/etc/profile.d/nix.sh
+      export XDG_DATA_DIRS=$HOME/.nix-profile/share:$HOME/.share:"''${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
     '';
     plugins = [
       {

@@ -55,12 +55,13 @@ This function should only modify configuration layer settings."
      treemacs
      themes-megapack
 
-     osx
      nixos
      python
      javascript
      go
      yaml
+     docker
+     terraform
      )
 
    ;; List of additional packages that will be installed without being
