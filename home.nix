@@ -4,6 +4,9 @@ let
   color_ps1 = "PS1='\${debian_chroot:+($debian_chroot)}\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '";
   plain_ps1 = "PS1='\${debian_chroot:+($debian_chroot)}\\u@\\h:\\w\\$ '";
 in {
+  nixpkgs.config.allowUnfree = true;
+
+  fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
     # Fonts
     fira-code
@@ -11,14 +14,17 @@ in {
     source-code-pro
   ];
 
+  home.sessionVariables = {
+    PAGER = "less";
+    EDITOR = "vim";
+    PATH = "$HOME/.nix-profile/bin:$GOPATH/bin:$PATH";
+    GOPATH = "$HOME/go";
+    XDG_DATA_DIRS = "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
+    _JAVA_AWT_WM_NONREPARENTING = 1;
+  };
+
   programs.bash = {
     enable = true;
-    sessionVariables = {
-      GOPATH = "$HOME/go";
-      PATH = "$PATH:$HOME/.nix-profile/bin:$GOPATH/bin";
-      XDG_DATA_DIRS = "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
-      _JAVA_AWT_WM_NONREPARENTING = 1;
-    };
     shellAliases = {
       du = "du -h";
       df = "df -h";
@@ -95,7 +101,11 @@ in {
     '';
   };
 
-  programs.ssh.enable = true;
+  programs.direnv = {
+    enable = true;
+    enableBashIntegration = true;
+  };
+
   programs.emacs.enable = true;
   home.file.".emacs.d" = {
     source = builtins.fetchGit {
@@ -123,7 +133,26 @@ in {
     enable = true;
   };
 
+  programs.ssh.enable = true;
+
   programs.tmux = {
     enable = true;
+    baseIndex = 1;
+    clock24 = true;
+    customPaneNavigationAndResize = true;
+    terminal = "screen-256color";
   };
+
+  programs.vim = {
+    enable = true;
+    extraConfig = ''
+      syntax enable
+      set tabstop=2
+      set number
+      set hlsearch
+      set incsearch
+    '';
+  };
+
+  news.display = "silent";
 }
