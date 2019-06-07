@@ -62,6 +62,8 @@ This function should only modify configuration layer settings."
      yaml
      docker
      terraform
+     html
+     emoji
      )
 
    ;; List of additional packages that will be installed without being
