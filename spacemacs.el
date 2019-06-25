@@ -64,6 +64,8 @@ This function should only modify configuration layer settings."
      terraform
      html
      emoji
+     clojure
+     rust
      )
 
    ;; List of additional packages that will be installed without being
@@ -73,7 +75,9 @@ This function should only modify configuration layer settings."
    ;; To use a local version of a package, use the `:location' property:
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(
+                                      direnv
+                                      )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -466,6 +470,21 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (use-package direnv
+    :config
+    (direnv-mode))
+  (defun web-setup-indent (n)
+    ;; web development
+    (setq coffee-tab-width n) ; coffeescript
+    (setq javascript-indent-level n) ; javascript-mode
+    (setq js-indent-level n) ; js-mode
+    (setq js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
+    (setq web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+    (setq web-mode-css-indent-offset n) ; web-mode, css in html file
+    (setq web-mode-code-indent-offset n) ; web-mode, js code in html file
+    (setq css-indent-offset n) ; css-mode
+    )
+  (web-setup-indent 2) ;
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
