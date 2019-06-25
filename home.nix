@@ -123,6 +123,10 @@ in {
     package = pkgs.gitAndTools.gitFull;
     userName = "Dave King";
     userEmail = "dave@davbo.uk";
+    aliases = {
+      pushf = "push --force-with-lease";
+      l     = "log --oneline --graph --color";
+    };
     extraConfig = ''
     [color]
     ui = true
