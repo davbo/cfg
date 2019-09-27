@@ -8,6 +8,7 @@ in {
 
   fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
+    vscode
     # Fonts
     fira-code
     fira-code-symbols
@@ -17,7 +18,7 @@ in {
   home.sessionVariables = {
     PAGER = "less";
     EDITOR = "vim";
-    PATH = "$HOME/.nix-profile/bin:$GOPATH/bin:$PATH";
+    PATH = "$HOME/.nix-profile/bin:$HOME/go/bin:$PATH";
     GOPATH = "$HOME/go";
     XDG_DATA_DIRS = "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
     _JAVA_AWT_WM_NONREPARENTING = 1;
