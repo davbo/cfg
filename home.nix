@@ -5,10 +5,29 @@ let
   plain_ps1 = "PS1='\${debian_chroot:+($debian_chroot)}\\u@\\h:\\w\\$ '";
 in {
   nixpkgs.config.allowUnfree = true;
-
+  nixpkgs.overlays = [
+    (import (builtins.fetchGit {
+      url = "https://github.com/nix-community/emacs-overlay.git";
+      ref = "master";
+      rev = "74d437962363a829b525bc9228fd4e5835d8d6aa"; # pinned to 21/03/2020
+    }))
+  ];
   fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
+    idea.idea-community
     vscode
+    awscli
+    emacsGit
+    fd
+    ripgrep
+    pandoc
+    shellcheck
+    google-cloud-sdk
+    google-chrome
+    wl-clipboard
+    slack
+    nodejs
+    discord
     # Fonts
     fira-code
     fira-code-symbols
@@ -18,15 +37,18 @@ in {
   home.sessionVariables = {
     PAGER = "less";
     EDITOR = "vim";
-    PATH = "$HOME/.nix-profile/bin:$HOME/go/bin:$PATH";
+    PATH = "$PATH:/usr/local/go/bin:$HOME/.nix-profile/bin:$HOME/go/bin";
     GOPATH = "$HOME/go";
     XDG_DATA_DIRS = "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
     _JAVA_AWT_WM_NONREPARENTING = 1;
+    AWS_SDK_LOAD_CONFIG = "1";
+    DOOMLOCALDIR = "$HOME/.doom.d/.local";
+    GO111MODULE = "on";
   };
-
   programs.bash = {
     enable = true;
     shellAliases = {
+      o  = "xdg-open";
       du = "du -h";
       df = "df -h";
       ls = "ls --color=tty";
@@ -41,6 +63,23 @@ in {
     initExtra = ''
     # Get home-manager working
     export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
+
+    # Taken from https://metaredux.com/posts/2020/07/07/supercharge-your-bash-history.html
+    # don't put duplicate lines or lines starting with space in the history.
+    # See bash(1) for more options
+    HISTCONTROL=ignoreboth
+
+    # append to the history file, don't overwrite it
+    shopt -s histappend
+    # append and reload the history after each command
+    PROMPT_COMMAND="history -a; history -n"
+
+    # ignore certain commands from the history
+    HISTIGNORE="ls:ll:cd:pwd:bg:fg:history"
+
+    # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+    HISTSIZE=100000
+    HISTFILESIZE=10000000
 
     # Copied from Ubuntu's default bashrc
     # make less more friendly for non-text input files, see lesspipe(1)
@@ -107,15 +146,18 @@ in {
     enableBashIntegration = true;
   };
 
-  programs.emacs.enable = true;
   home.file.".emacs.d" = {
     source = builtins.fetchGit {
-      url = "https://github.com/syl20bnr/spacemacs";
+      url = "https://github.com/hlissner/doom-emacs";
       ref = "develop";
     };
     recursive = true;
   };
-  home.file.".spacemacs".source = ./spacemacs.el;
+
+  home.file.".doom.d" = {
+    source = ./doom.d;
+    recursive = true;
+  };
 
   home.file.".Xdefaults".source = ./Xdefaults;
 
@@ -128,10 +170,11 @@ in {
       pushf = "push --force-with-lease";
       l     = "log --oneline --graph --color";
     };
-    extraConfig = ''
-    [color]
-    ui = true
-    '';
+    extraConfig = {
+      color = {
+        ui = "true";
+      };
+    };
   };
 
   programs.home-manager = {
