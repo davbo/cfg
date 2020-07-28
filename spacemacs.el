@@ -58,14 +58,17 @@ This function should only modify configuration layer settings."
      nixos
      python
      javascript
-     go
      yaml
+     go
      docker
      terraform
      html
      emoji
      clojure
      rust
+     plantuml
+     lsp
+     racket
      )
 
    ;; List of additional packages that will be installed without being
@@ -485,6 +488,7 @@ before packages are loaded."
     (setq css-indent-offset n) ; css-mode
     )
   (web-setup-indent 2) ;
+  (add-hook 'go-mode-hook 'lsp-deferred)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
