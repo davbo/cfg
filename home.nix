@@ -4,20 +4,14 @@ let
   color_ps1 = "PS1='\${debian_chroot:+($debian_chroot)}\\[\\033[01;32m\\]\\u@\\h\\[\\033[00m\\]:\\[\\033[01;34m\\]\\w\\[\\033[00m\\]\\$ '";
   plain_ps1 = "PS1='\${debian_chroot:+($debian_chroot)}\\u@\\h:\\w\\$ '";
 in {
-  nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = [
-    (import (builtins.fetchGit {
-      url = "https://github.com/nix-community/emacs-overlay.git";
-      ref = "master";
-      rev = "74d437962363a829b525bc9228fd4e5835d8d6aa"; # pinned to 21/03/2020
-    }))
-  ];
+  nixpkgs.config = import ./nixpkgs-config.nix;
+  xdg.configFile."nixpkgs/config.nix".source = ./nixpkgs-config.nix;
   fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
     idea.idea-community
     vscode
     awscli
-    emacsGit
+    emacs
     fd
     ripgrep
     pandoc
