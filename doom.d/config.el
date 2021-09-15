@@ -52,19 +52,22 @@
 ;; You can also try 'gd' (or 'C-c g d') to jump to their definition and see how
 ;; they are implemented.
 
-(use-package direnv
-  :init
-  (add-hook 'prog-mode-hook #'direnv-update-environment)
-  :hook (before-hack-local-variables . #'direnv-update-environment)
-  :config
-  (direnv-mode))
+;; (use-package direnv
+;;   :init
+;;   (add-hook 'prog-mode-hook #'direnv-update-environment)
+;;   :hook (before-hack-local-variables . #'direnv-update-environment)
+;;   :config
+;;   (direnv-mode))
 
 
 (defun golang-setup ()
   (setq lsp-gopls-codelens nil)
   (setq gofmt-command "gofumpt")
-  (add-hook 'before-save-hook #'gofmt-before-save)
-  (flycheck-add-next-checker 'lsp 'golangci-lint))
+  (add-to-list 'lsp-file-watch-ignored "[/\\\\]vendor$")
+  (add-to-list 'lsp-file-watch-ignored "[/\\\\]\\.terraform$")
+  (add-to-list 'lsp-file-watch-ignored "[/\\\\]node_modules$")
+  (add-to-list 'lsp-file-watch-ignored "[/\\\\]\\.virtualenv$")
+  (add-hook 'before-save-hook #'gofmt-before-save))
 
 ;; These MODE-local-vars-hook hooks are a Doom thing. They're executed after
 ;; MODE-hook, on hack-local-variables-hook. Although `lsp!` is attached to

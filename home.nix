@@ -8,20 +8,19 @@ in {
   xdg.configFile."nixpkgs/config.nix".source = ./nixpkgs-config.nix;
   fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
-    idea.idea-community
     vscode
     awscli
     emacs
     fd
     ripgrep
-    pandoc
     shellcheck
     google-cloud-sdk
     google-chrome
-    wl-clipboard
     slack
-    nodejs
+    nodejs_latest
     discord
+    firefox-bin
+    gitAndTools.hub
     # Fonts
     fira-code
     fira-code-symbols
