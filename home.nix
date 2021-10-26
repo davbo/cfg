@@ -20,6 +20,10 @@ in {
     google-cloud-sdk
     awscli
     terraform
+    podman
+    gvproxy
+    qemu
+    xz
     # languages
     rustup
     python3
