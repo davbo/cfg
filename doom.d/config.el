@@ -74,6 +74,10 @@
 (use-package company-lsp
   :defer t)
 
+(use-package tide
+  :init
+  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver"))
+
 (use-package lsp-mode
   :after (direnv evil)
   :config
