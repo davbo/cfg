@@ -51,3 +51,6 @@
 ;(package! builtin-package :recipe (:branch "develop"))
 
 (package! flycheck-golangci-lint)
+(package! sqlformat)
+(package! prettier-js)
+(package! protobuf-mode)

@@ -19,8 +19,9 @@
 ;;
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
-(setq doom-font (font-spec :family "Fira Code" :size 14)
-      doom-variable-pitch-font (font-spec :family "Alegreya" :size 14))
+(setq doom-font (font-spec :family "Fira Code" :style "Retina" :size 12 :height 1.0)
+      doom-variable-pitch-font (font-spec :family "ETBembo" :style "RomanOSF" :height 1.3)
+      doom-big-font (font-spec :family "Fira Code" :style "Retina" :size 24))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
@@ -76,7 +77,15 @@
 
 (use-package tide
   :init
+  (setq-default typescript-indent-level 2)
   (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver"))
+
+(use-package prettier-js
+  :ensure t
+  :after (typescript-mode)
+  :hook (typescript-mode . prettier-js-mode))
+
+(use-package protobuf-mode)
 
 (use-package lsp-mode
   :after (direnv evil)
@@ -115,3 +124,16 @@
     "[/\\\\]build-aux$"
     "[/\\\\]autom4te.cache$"
     "[/\\\\]\\.reference$")))
+
+(defadvice! workaround--+lookup--xref-show (fn identifier &optional show-fn)
+  :override #'+lookup--xref-show
+  (let ((xrefs (funcall fn
+                        (xref-find-backend)
+                        identifier)))
+    (when xrefs
+      (funcall (or show-fn #'xref--show-defs)
+               (lambda () xrefs)
+               nil)
+      (if (cdr xrefs)
+          'deferred
+        t))))
