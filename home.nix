@@ -1,10 +1,6 @@
 { config, pkgs, ... }:
 
-let
-  starship = pkgs.callPackage ./starship.nix {
-    inherit (pkgs.darwin.apple_sdk.frameworks) Security;
-  };
-  profile = "${config.home.profileDirectory}";
+let profile = "${config.home.profileDirectory}";
 in {
   nixpkgs.config = import ./nixpkgs-config.nix;
   xdg.configFile."nixpkgs/config.nix".source = ./nixpkgs-config.nix;
@@ -21,10 +17,13 @@ in {
     (aspellWithDicts (dicts: with dicts; [ en en-computers en-science fi ]))
     exa
     # cloud stuff
+    kubectl
+    eksctl
     google-cloud-sdk
-    awscli2
     terraform
     xz
+    dive
+    ipcalc
     # languages
     rustup
     python3
@@ -45,9 +44,11 @@ in {
   home.sessionVariables = {
     PAGER = "less";
     EDITOR = "vim";
-    PATH = "/nix/var/nix/profiles/default/bin:/usr/local/go/bin:$HOME/.nix-profile/bin:$HOME/go/bin:$PATH";
+    PATH =
+      "/nix/var/nix/profiles/default/bin:/usr/local/go/bin:$HOME/.nix-profile/bin:$HOME/go/bin:$PATH";
     GOPATH = "$HOME/go";
-    XDG_DATA_DIRS = "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
+    XDG_DATA_DIRS =
+      "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
     _JAVA_AWT_WM_NONREPARENTING = 1;
     AWS_SDK_LOAD_CONFIG = "1";
     GO111MODULE = "on";
@@ -62,12 +63,9 @@ in {
 
   programs.starship = {
     enable = true;
-    package = starship;
     enableZshIntegration = true;
     enableBashIntegration = true;
-    settings = {
-      add_newline = false;
-    };
+    settings = { add_newline = false; };
   };
 
   programs.zsh = {
@@ -80,14 +78,20 @@ in {
       ll = "ls -al";
     };
     initExtraBeforeCompInit = ''
-    fpath+=("${profile}"/share/zsh/site-functions "${profile}"/share/zsh/$ZSH_VERSION/functions "${profile}"/share/zsh/vendor-completions ~/.local/share/zsh/site-functions)
-  '';
+      setopt interactivecomments
+      fpath+=("${profile}"/share/zsh/site-functions "${profile}"/share/zsh/$ZSH_VERSION/functions "${profile}"/share/zsh/vendor-completions ~/.local/share/zsh/site-functions)
+    '';
+    initExtra = ''
+      source <(kubectl completion zsh)
+    '';
   };
   home.file.".local/share/zsh/site-functions/_docker" = {
-    source = "/Applications/Docker.app/Contents/Resources/etc/docker.zsh-completion";
+    source =
+      "/Applications/Docker.app/Contents/Resources/etc/docker.zsh-completion";
   };
   home.file.".local/share/zsh/site-functions/_docker-compose" = {
-    source = "/Applications/Docker.app/Contents/Resources/etc/docker-compose.zsh-completion";
+    source =
+      "/Applications/Docker.app/Contents/Resources/etc/docker-compose.zsh-completion";
   };
 
   programs.direnv = {
@@ -111,18 +115,12 @@ in {
     userEmail = "dave@davbo.uk";
     aliases = {
       pushf = "push --force-with-lease";
-      l     = "log --oneline --graph --color";
+      l = "log --oneline --graph --color";
     };
-    extraConfig = {
-      color = {
-        ui = "true";
-      };
-    };
+    extraConfig = { color = { ui = "true"; }; };
   };
 
-  programs.home-manager = {
-    enable = true;
-  };
+  programs.home-manager = { enable = true; };
 
   programs.ssh = {
     enable = true;
@@ -183,31 +181,31 @@ in {
       ll = "ls -al";
     };
     profileExtra = ''
-    # Source default profile
-    if [ -f /etc/profile ] ; then
-      . /etc/profile
-    fi
+      # Source default profile
+      if [ -f /etc/profile ] ; then
+        . /etc/profile
+      fi
     '';
     initExtra = ''
-    # Get home-manager working
-    export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
+      # Get home-manager working
+      export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
 
-    # Taken from https://metaredux.com/posts/2020/07/07/supercharge-your-bash-history.html
-    # don't put duplicate lines or lines starting with space in the history.
-    # See bash(1) for more options
-    HISTCONTROL=ignoreboth
+      # Taken from https://metaredux.com/posts/2020/07/07/supercharge-your-bash-history.html
+      # don't put duplicate lines or lines starting with space in the history.
+      # See bash(1) for more options
+      HISTCONTROL=ignoreboth
 
-    # append to the history file, don't overwrite it
-    shopt -s histappend
-    # append and reload the history after each command
-    PROMPT_COMMAND="history -a; history -n"
+      # append to the history file, don't overwrite it
+      shopt -s histappend
+      # append and reload the history after each command
+      PROMPT_COMMAND="history -a; history -n"
 
-    # ignore certain commands from the history
-    HISTIGNORE="ls:ll:cd:pwd:bg:fg:history"
+      # ignore certain commands from the history
+      HISTIGNORE="ls:ll:cd:pwd:bg:fg:history"
 
-    # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-    HISTSIZE=100000
-    HISTFILESIZE=10000000
+      # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+      HISTSIZE=100000
+      HISTFILESIZE=10000000
     '';
   };
 }

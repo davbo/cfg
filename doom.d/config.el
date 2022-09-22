@@ -56,84 +56,52 @@
 
 (setq ispell-dictionary "en_GB")
 
-(defun golang-setup ()
-  (setq lsp-gopls-codelens nil)
-  (setq gofmt-command "gofumpt")
-  (add-to-list 'lsp-file-watch-ignored "[/\\\\]vendor$")
-  (add-to-list 'lsp-file-watch-ignored "[/\\\\]\\.terraform$")
-  (add-to-list 'lsp-file-watch-ignored "[/\\\\]node_modules$")
-  (add-to-list 'lsp-file-watch-ignored "[/\\\\]\\.virtualenv$")
-  (add-hook 'before-save-hook #'gofmt-before-save))
-
 ;; These MODE-local-vars-hook hooks are a Doom thing. They're executed after
 ;; MODE-hook, on hack-local-variables-hook. Although `lsp!` is attached to
 ;; python-mode-local-vars-hook, it should occur earlier than my-flycheck-setup
 ;; this way:
-(add-hook 'go-mode-local-vars-hook #'golang-setup)
 (add-hook 'terraform-mode-hook #'terraform-format-on-save-mode)
 
 (use-package company-lsp
   :defer t)
 
-(use-package tide
-  :init
-  (setq-default typescript-indent-level 2)
-  (setq tide-tsserver-executable "node_modules/typescript/bin/tsserver"))
-
-(use-package prettier-js
-  :ensure t
-  :after (typescript-mode)
-  :hook (typescript-mode . prettier-js-mode))
+(apheleia-global-mode +1)
 
 (use-package protobuf-mode)
 
-(use-package lsp-mode
-  :after (direnv evil)
-  :config
-  ; We want LSP
-  (setq lsp-diagnostic-package :auto)
-  ; Optional, I don't like this feature
-  (setq lsp-enable-snippet nil)
-  ; LSP will watch all files in the project
-  ; directory by default, so we eliminate some
-  ; of the irrelevant ones here, most notable
-  ; the .direnv folder which will contain *a lot*
-  ; of Nix-y noise we don't want indexed.
-  (setq lsp-file-watch-ignored '(
-    "[/\\\\]\\.direnv$"
-    ; SCM tools
-    "[/\\\\]\\.git$"
-    "[/\\\\]\\.hg$"
-    "[/\\\\]\\.bzr$"
-    "[/\\\\]_darcs$"
-    "[/\\\\]\\.svn$"
-    "[/\\\\]_FOSSIL_$"
-    ; IDE tools
-    "[/\\\\]\\.idea$"
-    "[/\\\\]\\.ensime_cache$"
-    "[/\\\\]\\.eunit$"
-    "[/\\\\]node_modules$"
-    "[/\\\\]\\.fslckout$"
-    "[/\\\\]\\.tox$"
-    "[/\\\\]\\.stack-work$"
-    "[/\\\\]\\.bloop$"
-    "[/\\\\]\\.metals$"
-    "[/\\\\]target$"
-    ; Autotools output
-    "[/\\\\]\\.deps$"
-    "[/\\\\]build-aux$"
-    "[/\\\\]autom4te.cache$"
-    "[/\\\\]\\.reference$")))
+(defun my-projectile-project-find-function (dir)
+  (let ((root (projectile-project-root dir)))
+    (and root (cons 'transient root))))
 
-(defadvice! workaround--+lookup--xref-show (fn identifier &optional show-fn)
-  :override #'+lookup--xref-show
-  (let ((xrefs (funcall fn
-                        (xref-find-backend)
-                        identifier)))
-    (when xrefs
-      (funcall (or show-fn #'xref--show-defs)
-               (lambda () xrefs)
-               nil)
-      (if (cdr xrefs)
-          'deferred
-        t))))
+(projectile-mode t)
+
+(with-eval-after-load 'project
+  (add-to-list 'project-find-functions 'my-projectile-project-find-function))
+
+
+;; https://github.com/orzechowskid/tsi.el/
+;; great tree-sitter-based indentation for typescript/tsx, css, json
+(use-package! tsi
+  :after tree-sitter
+  ;; define autoload definitions which when actually invoked will cause package to be loaded
+  :commands (tsi-typescript-mode tsi-json-mode tsi-css-mode)
+  :init
+  (add-hook 'typescript-mode-hook (lambda () (tsi-typescript-mode 1)))
+  (add-hook 'json-mode-hook (lambda () (tsi-json-mode 1)))
+  (add-hook 'css-mode-hook (lambda () (tsi-css-mode 1)))
+  (add-hook 'scss-mode-hook (lambda () (tsi-scss-mode 1))))
+
+(use-package elfeed
+  :ensure t
+:config
+(setq elfeed-use-curl t))
+
+(use-package elfeed-protocol
+  :ensure t
+  :config
+  (setq elfeed-protocol-fever-maxsize 100)
+  (setq elfeed-feeds
+        (list (list "fever+https://davbo-rss.fly.dev"
+                    :api-url "https://davbo-rss.fly.dev/fever/"
+                    :use-authinfo t)))
+  (elfeed-protocol-enable))

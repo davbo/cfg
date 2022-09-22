@@ -52,5 +52,8 @@
 
 (package! flycheck-golangci-lint)
 (package! sqlformat)
-(package! prettier-js)
 (package! protobuf-mode)
+(package! apheleia)
+(package! elfeed-protocol)
+(package! tsi
+  :recipe (:host github :repo "orzechowskid/tsi.el"))
