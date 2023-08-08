@@ -57,3 +57,4 @@
 (package! elfeed-protocol)
 (package! tsi
   :recipe (:host github :repo "orzechowskid/tsi.el"))
+(package! mermaid-mode)

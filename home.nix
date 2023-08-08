@@ -3,11 +3,11 @@
 let profile = "${config.home.profileDirectory}";
 in {
   nixpkgs.config = import ./nixpkgs-config.nix;
-  xdg.configFile."nixpkgs/config.nix".source = ./nixpkgs-config.nix;
+  xdg.configFile."home-manager/config.nix".source = ./nixpkgs-config.nix;
   fonts.fontconfig.enable = true;
   home.packages = with pkgs; [
     # utils
-    gcc
+    bashInteractive
     coreutils-prefixed
     fd
     ripgrep
@@ -16,14 +16,25 @@ in {
     plantuml
     (aspellWithDicts (dicts: with dicts; [ en en-computers en-science fi ]))
     exa
+    openssl_3
+    jq
+    sqlite
+    gnumake
+    pyright
+    nodePackages_latest.mermaid-cli
     # cloud stuff
+    awscli2
+    ssm-session-manager-plugin
     kubectl
+    kubectx
+    kubernetes-helm
     eksctl
     google-cloud-sdk
     terraform
     xz
     dive
     ipcalc
+    pgcli
     # languages
     rustup
     python3
@@ -45,7 +56,7 @@ in {
     PAGER = "less";
     EDITOR = "vim";
     PATH =
-      "/nix/var/nix/profiles/default/bin:/usr/local/go/bin:$HOME/.nix-profile/bin:$HOME/go/bin:$PATH";
+      "/nix/var/nix/profiles/default/bin:/usr/local/go/bin:$HOME/.nix-profile/bin:$HOME/go/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
     GOPATH = "$HOME/go";
     XDG_DATA_DIRS =
       "$HOME/.nix-profile/share:$HOME/.share:\${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}";
@@ -112,10 +123,11 @@ in {
     enable = true;
     package = pkgs.gitAndTools.gitFull;
     userName = "Dave King";
-    userEmail = "dave@davbo.uk";
+    userEmail = "dave@davbo.fi";
     aliases = {
       pushf = "push --force-with-lease";
       l = "log --oneline --graph --color";
+      s = "status";
     };
     extraConfig = { color = { ui = "true"; }; };
   };
@@ -174,38 +186,13 @@ in {
 
   programs.bash = {
     enable = true;
+    historySize = 1000000;
     shellAliases = {
       du = "du -h";
       df = "df -h";
       ls = "${pkgs.exa}/bin/exa";
       ll = "ls -al";
     };
-    profileExtra = ''
-      # Source default profile
-      if [ -f /etc/profile ] ; then
-        . /etc/profile
-      fi
-    '';
-    initExtra = ''
-      # Get home-manager working
-      export NIX_PATH=$HOME/.nix-defexpr/channels''${NIX_PATH:+:}$NIX_PATH
-
-      # Taken from https://metaredux.com/posts/2020/07/07/supercharge-your-bash-history.html
-      # don't put duplicate lines or lines starting with space in the history.
-      # See bash(1) for more options
-      HISTCONTROL=ignoreboth
-
-      # append to the history file, don't overwrite it
-      shopt -s histappend
-      # append and reload the history after each command
-      PROMPT_COMMAND="history -a; history -n"
-
-      # ignore certain commands from the history
-      HISTIGNORE="ls:ll:cd:pwd:bg:fg:history"
-
-      # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-      HISTSIZE=100000
-      HISTFILESIZE=10000000
-    '';
+    historyIgnore = [ "ls" "cd" "exit" "ll" "pwd" "bg" "fg" "history" ];
   };
 }
